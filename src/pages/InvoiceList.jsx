@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Card, Col, Row, Table,Stack } from "react-bootstrap";
+import { Button, Card, Col, Row, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { BiSolidPencil, BiTrash } from "react-icons/bi";
 import { BsEyeFill } from "react-icons/bs";
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useInvoiceListData } from "../redux/invoice/hooks";
 import { useDispatch } from "react-redux";
 import { deleteInvoice } from "../redux/invoice/invoicesSlice";
+import { useProducts } from "../redux/products/hooks";
 
 const InvoiceList = () => {
   const { invoiceList, getOneInvoice } = useInvoiceListData();
@@ -35,9 +36,7 @@ const InvoiceList = () => {
                 <Link to="/create">
                   <Button variant="primary">Create Invoice</Button>
                 </Link>
-                <Link to="/products">
-                  <Button variant="outline-primary">View Products</Button>
-                </Link>
+                <ProductLink />
               </div>
             </div>
           ) : (
@@ -48,6 +47,8 @@ const InvoiceList = () => {
                   <Button variant="primary mb-2 mb-md-4">Create Invoice</Button>
                 </Link>
 
+                <ProductLink/>
+                
                 <div className="d-flex gap-2">
                   <Button variant="dark mb-2 mb-md-4" onClick={handleCopyClick}>
                     Copy Invoice
@@ -96,6 +97,7 @@ const InvoiceList = () => {
 const InvoiceRow = ({ invoice, navigate }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
+  const {getItemsByInvoiceId} = useProducts()
 
   const handleDeleteClick = (invoiceId) => {
     dispatch(deleteInvoice(invoiceId));
@@ -168,7 +170,7 @@ const InvoiceRow = ({ invoice, navigate }) => {
           discountRate: invoice.discountRate,
           discountAmount: invoice.discountAmount,
         }}
-        items={invoice.items}
+        items={getItemsByInvoiceId(invoice.id)}
         currency={invoice.currency}
         subTotal={invoice.subTotal}
         taxAmount={invoice.taxAmount}
@@ -179,4 +181,9 @@ const InvoiceRow = ({ invoice, navigate }) => {
   );
 };
 
+const ProductLink = () => {
+  return <Link to="/products">
+    <Button variant="outline-primary mb-2 mb-md-4">View Products</Button>
+  </Link>;
+};
 export default InvoiceList;
