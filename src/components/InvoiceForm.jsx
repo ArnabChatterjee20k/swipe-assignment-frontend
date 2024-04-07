@@ -14,6 +14,8 @@ import { addInvoice, updateInvoice } from "../redux/invoice/invoicesSlice";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import generateRandomId from "../utils/generateRandomId";
 import { useInvoiceListData } from "../redux/invoice/hooks";
+import { addProduct } from "../redux/products/productsSlice";
+import { generateFakeInvoiceData } from "../utils/generateFakeInvoiceData";
 
 const InvoiceForm = () => {
   const dispatch = useDispatch();
@@ -161,7 +163,10 @@ const InvoiceForm = () => {
       dispatch(updateInvoice({ id: params.id, updatedInvoice: formData }));
       alert("Invoice updated successfuly 🥳");
     } else if (isCopy) {
-      dispatch(addInvoice({ id: generateRandomId(), ...formData }));
+      const invoiceID = generateRandomId()
+      const {items,...formDataWithoutItems} = formData
+      dispatch(addInvoice({ ...formDataWithoutItems,id:invoiceID}));
+      dispatch(addProduct({products:formData.items,invoiceID:invoiceID}))
       alert("Invoice added successfuly 🥳");
     } else {
       dispatch(addInvoice(formData));
@@ -182,6 +187,11 @@ const InvoiceForm = () => {
       alert("Invoice does not exists!!!!!");
     }
   };
+
+  const handleAutoGenerateInvoice = ()=>{
+    setFormData(prevForm=>generateFakeInvoiceData(prevForm))
+    handleCalculateTotal()
+  }
 
   return (
     <Form onSubmit={openModal}>
@@ -373,6 +383,9 @@ const InvoiceForm = () => {
             <Button variant="primary" type="submit" className="d-block w-100">
               Review Invoice
             </Button>
+            {!isEdit && <Button variant="outline-secondary" onClick={handleAutoGenerateInvoice} className="d-block w-100 mt-3">
+              Auto Generate
+            </Button>}
             <InvoiceModal
               showModal={isOpen}
               closeModal={closeModal}
