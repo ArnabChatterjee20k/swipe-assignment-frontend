@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { Button, Card, Col, Row, Table } from "react-bootstrap";
+import { Button, Card, Col, Row, Table,Stack } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { BiSolidPencil, BiTrash } from "react-icons/bi";
 import { BsEyeFill } from "react-icons/bs";
 import InvoiceModal from "../components/InvoiceModal";
 import { useNavigate } from "react-router-dom";
-import { useInvoiceListData } from "../redux/hooks";
+import { useInvoiceListData } from "../redux/invoice/hooks";
 import { useDispatch } from "react-redux";
-import { deleteInvoice } from "../redux/invoicesSlice";
+import { deleteInvoice } from "../redux/invoice/invoicesSlice";
 
 const InvoiceList = () => {
   const { invoiceList, getOneInvoice } = useInvoiceListData();
@@ -31,9 +31,14 @@ const InvoiceList = () => {
           {isListEmpty ? (
             <div className="d-flex flex-column align-items-center">
               <h3 className="fw-bold pb-2 pb-md-4">No invoices present</h3>
-              <Link to="/create">
-                <Button variant="primary">Create Invoice</Button>
-              </Link>
+              <div className="d-flex flex-column flex-lg-row gap-3 mx-auto">
+                <Link to="/create">
+                  <Button variant="primary">Create Invoice</Button>
+                </Link>
+                <Link to="/products">
+                  <Button variant="outline-primary">View Products</Button>
+                </Link>
+              </div>
             </div>
           ) : (
             <div className="d-flex flex-column">
