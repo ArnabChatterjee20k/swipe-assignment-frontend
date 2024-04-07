@@ -16,6 +16,7 @@ import generateRandomId from "../utils/generateRandomId";
 import { useInvoiceListData } from "../redux/invoice/hooks";
 import { addProduct } from "../redux/products/productsSlice";
 import { generateFakeInvoiceData } from "../utils/generateFakeInvoiceData";
+import { useProducts } from "../redux/products/hooks";
 
 const InvoiceForm = () => {
   const dispatch = useDispatch();
@@ -24,18 +25,19 @@ const InvoiceForm = () => {
   const navigate = useNavigate();
   const isCopy = location.pathname.includes("create");
   const isEdit = location.pathname.includes("edit");
-
+  const {getItemsByInvoiceId} = useProducts()
   const [isOpen, setIsOpen] = useState(false);
   const [copyId, setCopyId] = useState("");
   const { getOneInvoice, listSize } = useInvoiceListData();
   const [formData, setFormData] = useState(
     isEdit
-      ? getOneInvoice(params.id)
+      ? {...getOneInvoice(params.id),items:getItemsByInvoiceId(params.id)}
       : isCopy && params.id
       ? {
           ...getOneInvoice(params.id),
           id: generateRandomId(),
           invoiceNumber: listSize + 1,
+          items:getItemsByInvoiceId(params.id)
         }
       : {
           id: generateRandomId(),
