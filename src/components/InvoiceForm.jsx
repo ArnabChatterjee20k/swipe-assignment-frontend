@@ -171,7 +171,8 @@ const InvoiceForm = () => {
       );
       dispatch(updateProducts({ items, invoiceID: parseInt(params.id) }));
       alert("Invoice updated successfuly 🥳");
-    } else if (isCopy) {
+    } 
+    else if (isCopy) {
       const invoiceID = generateRandomId();
       dispatch(addInvoice({ ...formDataWithoutItems, id: invoiceID }));
       dispatch(addProduct({ products: items, invoiceID: invoiceID }));
@@ -191,6 +192,7 @@ const InvoiceForm = () => {
         ...recievedInvoice,
         id: formData.id,
         invoiceNumber: formData.invoiceNumber,
+        items:getItemsByInvoiceId(copyId)
       });
     } else {
       alert("Invoice does not exists!!!!!");
