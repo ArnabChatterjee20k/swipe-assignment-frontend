@@ -1,13 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { structureProducts } from "./utils";
 import generateRandomId from "../../utils/generateRandomId";
 const productsSlice = createSlice({
   name: "products",
   initialState: [],
   reducers: {
-    
     addProduct: (state, action) => {
-      console.log(action.payload)
+      console.log(action.payload);
       const receivedItems = action.payload.products.map((item) => ({
         itemId: generateRandomId(),
         itemName: item.itemName,
@@ -15,19 +13,18 @@ const productsSlice = createSlice({
         itemPrice: item.itemPrice,
         itemQuantity: item.itemQuantity,
         invoices: [action.payload.invoiceID],
-      }));;
-      state.push(...receivedItems)
+      }));
+      state.push(...receivedItems);
     },
     deleteProduct: (state, action) => {
       return state.filter((item) => item.id !== action.payload);
     },
     updateProduct: (state, action) => {
       const index = state.findIndex(
-        (product) => product.id === action.payload.id
+        (product) => product.itemId === action.payload.id
       );
       if (index !== -1) {
-        const item = action.payload;
-        state[index] = item;
+        state[index] = action.payload.item;
       }
     },
   },
