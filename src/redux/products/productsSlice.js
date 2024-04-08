@@ -48,12 +48,12 @@ const productsSlice = createSlice({
         const index = state.findIndex(
           (product) => product.itemId === item.itemId
         );
+        console.log({index})
         if (index !== -1) {
           const prevInvoices = current(state)[index].invoices;
           const currentInvoices = item.invoices;
           console.log({ prevInvoices, currentInvoices });
-          // state[index] = {...item,invoices:[...new Set(...prevInvoices,...currentInvoices)]};
-          state[index] = item;
+          state[index] = {...item,invoices:[...new Set([...prevInvoices,...currentInvoices,action.payload.invoiceID])]};
         } else {
           state.push({
             itemId: generateRandomId(),

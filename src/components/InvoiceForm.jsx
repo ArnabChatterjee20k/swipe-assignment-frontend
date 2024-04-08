@@ -186,6 +186,10 @@ const InvoiceForm = () => {
   };
 
   const handleCopyInvoice = () => {
+    if(isEdit){
+      const itemsToDelete = getItemsByInvoiceId(params.id).map(item=>item.itemId)
+      setDeletedItems((prevItems) => [...prevItems, ...itemsToDelete]);
+    }
     const recievedInvoice = getOneInvoice(copyId);
     if (recievedInvoice) {
       setFormData({
