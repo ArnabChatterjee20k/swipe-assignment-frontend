@@ -9,6 +9,7 @@ import { useInvoiceListData } from "../redux/invoice/hooks";
 import { useDispatch } from "react-redux";
 import { deleteInvoice } from "../redux/invoice/invoicesSlice";
 import { useProducts } from "../redux/products/hooks";
+import { deleteInvoicesFromProduct } from "../redux/products/productsSlice";
 
 const InvoiceList = () => {
   const { invoiceList, getOneInvoice } = useInvoiceListData();
@@ -100,7 +101,9 @@ const InvoiceRow = ({ invoice, navigate }) => {
   const {getItemsByInvoiceId} = useProducts()
 
   const handleDeleteClick = (invoiceId) => {
+    const deletedItems = getItemsByInvoiceId(invoiceId).map(item=>item.itemId)
     dispatch(deleteInvoice(invoiceId));
+    dispatch(deleteInvoicesFromProduct({itemsIds:deletedItems,invoiceId:parseInt(invoiceId)}))
   };
 
   const handleEditClick = () => {

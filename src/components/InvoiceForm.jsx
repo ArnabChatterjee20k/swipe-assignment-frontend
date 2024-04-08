@@ -14,7 +14,7 @@ import { addInvoice, updateInvoice } from "../redux/invoice/invoicesSlice";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import generateRandomId from "../utils/generateRandomId";
 import { useInvoiceListData } from "../redux/invoice/hooks";
-import { addProduct, updateProducts } from "../redux/products/productsSlice";
+import { addProduct, deleteInvoicesFromProduct, updateProducts } from "../redux/products/productsSlice";
 import { generateFakeInvoiceData } from "../utils/generateFakeInvoiceData";
 import { useProducts } from "../redux/products/hooks";
 
@@ -25,19 +25,20 @@ const InvoiceForm = () => {
   const navigate = useNavigate();
   const isCopy = location.pathname.includes("create");
   const isEdit = location.pathname.includes("edit");
-  const {getItemsByInvoiceId} = useProducts()
+  const { getItemsByInvoiceId } = useProducts();
+  const [deletedItems, setDeletedItems] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [copyId, setCopyId] = useState("");
   const { getOneInvoice, listSize } = useInvoiceListData();
   const [formData, setFormData] = useState(
     isEdit
-      ? {...getOneInvoice(params.id),items:getItemsByInvoiceId(params.id)}
+      ? { ...getOneInvoice(params.id), items: getItemsByInvoiceId(params.id) }
       : isCopy && params.id
       ? {
           ...getOneInvoice(params.id),
           id: generateRandomId(),
           invoiceNumber: listSize + 1,
-          items:getItemsByInvoiceId(params.id)
+          items: getItemsByInvoiceId(params.id),
         }
       : {
           id: generateRandomId(),
@@ -79,6 +80,8 @@ const InvoiceForm = () => {
       (item) => item.itemId !== itemToDelete.itemId
     );
     setFormData({ ...formData, items: updatedItems });
+    if (isEdit || (isCopy && params.id))
+      setDeletedItems((prevItems) => [...prevItems, itemToDelete.itemId]);
     handleCalculateTotal();
   };
 
@@ -161,20 +164,23 @@ const InvoiceForm = () => {
   };
 
   const handleAddInvoice = () => {
-    const {items,...formDataWithoutItems} = formData
+    const { items, ...formDataWithoutItems } = formData;
     if (isEdit) {
-      dispatch(updateInvoice({ id: params.id, updatedInvoice: formDataWithoutItems }));
-      dispatch(updateProducts({items,invoiceID:parseInt(params.id)}))
+      dispatch(
+        updateInvoice({ id: params.id, updatedInvoice: formDataWithoutItems })
+      );
+      dispatch(updateProducts({ items, invoiceID: parseInt(params.id) }));
       alert("Invoice updated successfuly 🥳");
     } else if (isCopy) {
-      const invoiceID = generateRandomId()
-      dispatch(addInvoice({ ...formDataWithoutItems,id:invoiceID}));
-      dispatch(addProduct({products:items,invoiceID:invoiceID}))
+      const invoiceID = generateRandomId();
+      dispatch(addInvoice({ ...formDataWithoutItems, id: invoiceID }));
+      dispatch(addProduct({ products: items, invoiceID: invoiceID }));
       alert("Invoice added successfuly 🥳");
     } else {
       dispatch(addInvoice(formData));
       alert("Invoice added successfuly 🥳");
     }
+    if(deletedItems.length && params.id) dispatch(deleteInvoicesFromProduct({itemsIds:deletedItems,invoiceId:parseInt(params.id)}))
     navigate("/");
   };
 
@@ -191,10 +197,10 @@ const InvoiceForm = () => {
     }
   };
 
-  const handleAutoGenerateInvoice = ()=>{
-    setFormData(prevForm=>generateFakeInvoiceData(prevForm))
-    handleCalculateTotal()
-  }
+  const handleAutoGenerateInvoice = () => {
+    setFormData((prevForm) => generateFakeInvoiceData(prevForm));
+    handleCalculateTotal();
+  };
 
   return (
     <Form onSubmit={openModal}>
@@ -386,9 +392,15 @@ const InvoiceForm = () => {
             <Button variant="primary" type="submit" className="d-block w-100">
               Review Invoice
             </Button>
-            {!isEdit && <Button variant="outline-secondary" onClick={handleAutoGenerateInvoice} className="d-block w-100 mt-3">
-              Auto Generate
-            </Button>}
+            {!isEdit && (
+              <Button
+                variant="outline-secondary"
+                onClick={handleAutoGenerateInvoice}
+                className="d-block w-100 mt-3"
+              >
+                Auto Generate
+              </Button>
+            )}
             <InvoiceModal
               showModal={isOpen}
               closeModal={closeModal}
