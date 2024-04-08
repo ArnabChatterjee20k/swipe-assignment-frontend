@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Row, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { BiSolidPencil, BiTrash } from "react-icons/bi";
@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux";
 import { deleteInvoice } from "../redux/invoice/invoicesSlice";
 import { useProducts } from "../redux/products/hooks";
 import { deleteInvoicesFromProduct } from "../redux/products/productsSlice";
-
+import { updateInvoiceTotal } from "../redux/invoice/invoicesSlice";
 const InvoiceList = () => {
   const { invoiceList, getOneInvoice } = useInvoiceListData();
   const isListEmpty = invoiceList.length === 0;
@@ -98,7 +98,17 @@ const InvoiceList = () => {
 const InvoiceRow = ({ invoice, navigate }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
-  const {getItemsByInvoiceId} = useProducts()
+  const {productsSize,getItemsByInvoiceId} = useProducts()
+
+  // added total calculation here as we cant run chained dispatches as we are not using thunk.
+  // Since we cant use chained dispatches so during items editing there can be a race condition where the updateInvoiceTotal can get wrong number of items
+  // So when the user will come in this tab the invoices will automatically get updated
+  useEffect(()=>{
+    dispatch(updateInvoiceTotal({
+      items: getItemsByInvoiceId(invoice.id),
+      invoiceID: parseInt(invoice.id),
+    }))
+  },[productsSize])
 
   const handleDeleteClick = (invoiceId) => {
     const deletedItems = getItemsByInvoiceId(invoiceId).map(item=>item.itemId)

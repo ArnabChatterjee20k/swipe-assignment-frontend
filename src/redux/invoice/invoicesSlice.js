@@ -1,4 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice,current } from "@reduxjs/toolkit";
+import calculateTotal from "../../utils/calculateTotal";
 
 const invoicesSlice = createSlice({
   name: "invoices",
@@ -18,6 +19,13 @@ const invoicesSlice = createSlice({
         state[index] = action.payload.updatedInvoice;
       }
     },
+    updateInvoiceTotal:(state,action)=>{
+      const {items,invoiceID} = action.payload
+      const requiredInvoiceIdx = state.findIndex(invoice=>invoice.id===invoiceID)
+      const requiredInvoice = current(state)[requiredInvoiceIdx]
+      const amount = calculateTotal(items,requiredInvoice.taxRate,requiredInvoice.discountRate)
+      state[requiredInvoiceIdx] = {...requiredInvoice,...amount}
+    }
   },
 });
 
@@ -25,6 +33,7 @@ export const {
   addInvoice,
   deleteInvoice,
   updateInvoice,
+  updateInvoiceTotal
 } = invoicesSlice.actions;
 
 export const selectInvoiceList = (state) => state.invoices;

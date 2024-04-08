@@ -10,13 +10,22 @@ import InvoiceModal from "./InvoiceModal";
 import { BiArrowBack } from "react-icons/bi";
 import InputGroup from "react-bootstrap/InputGroup";
 import { useDispatch } from "react-redux";
-import { addInvoice, updateInvoice } from "../redux/invoice/invoicesSlice";
+import {
+  addInvoice,
+  updateInvoice,
+  updateInvoiceTotal,
+} from "../redux/invoice/invoicesSlice";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import generateRandomId from "../utils/generateRandomId";
 import { useInvoiceListData } from "../redux/invoice/hooks";
-import { addProduct, deleteInvoicesFromProduct, updateProducts } from "../redux/products/productsSlice";
+import {
+  addProduct,
+  deleteInvoicesFromProduct,
+  updateProducts,
+} from "../redux/products/productsSlice";
 import { generateFakeInvoiceData } from "../utils/generateFakeInvoiceData";
 import { useProducts } from "../redux/products/hooks";
+import calculateTotal from "../utils/calculateTotal";
 
 const InvoiceForm = () => {
   const dispatch = useDispatch();
@@ -103,28 +112,14 @@ const InvoiceForm = () => {
 
   const handleCalculateTotal = () => {
     setFormData((prevFormData) => {
-      let subTotal = 0;
-
-      prevFormData.items.forEach((item) => {
-        subTotal +=
-          parseFloat(item.itemPrice).toFixed(2) * parseInt(item.itemQuantity);
-      });
-
-      const taxAmount = parseFloat(
-        subTotal * (prevFormData.taxRate / 100)
-      ).toFixed(2);
-      const discountAmount = parseFloat(
-        subTotal * (prevFormData.discountRate / 100)
-      ).toFixed(2);
-      const total = (
-        subTotal -
-        parseFloat(discountAmount) +
-        parseFloat(taxAmount)
-      ).toFixed(2);
-
+      const { taxAmount, discountAmount, subTotal, total } = calculateTotal(
+        prevFormData.items,
+        prevFormData.taxRate,
+        prevFormData.discountRate
+      );
       return {
         ...prevFormData,
-        subTotal: parseFloat(subTotal).toFixed(2),
+        subTotal,
         taxAmount,
         discountAmount,
         total,
@@ -167,12 +162,11 @@ const InvoiceForm = () => {
     const { items, ...formDataWithoutItems } = formData;
     if (isEdit) {
       dispatch(
-        updateInvoice({ id: params.id, updatedInvoice: formDataWithoutItems })
+        updateInvoice({ id: parseInt(params.id), updatedInvoice: formDataWithoutItems })
       );
       dispatch(updateProducts({ items, invoiceID: parseInt(params.id) }));
       alert("Invoice updated successfuly 🥳");
-    } 
-    else if (isCopy) {
+    } else if (isCopy) {
       const invoiceID = generateRandomId();
       dispatch(addInvoice({ ...formDataWithoutItems, id: invoiceID }));
       dispatch(addProduct({ products: items, invoiceID: invoiceID }));
@@ -181,13 +175,21 @@ const InvoiceForm = () => {
       dispatch(addInvoice(formData));
       alert("Invoice added successfuly 🥳");
     }
-    if(deletedItems.length && params.id) dispatch(deleteInvoicesFromProduct({itemsIds:deletedItems,invoiceId:parseInt(params.id)}))
+    if (deletedItems.length && params.id)
+      dispatch(
+        deleteInvoicesFromProduct({
+          itemsIds: deletedItems,
+          invoiceId: parseInt(params.id),
+        })
+      );
     navigate("/");
   };
 
   const handleCopyInvoice = () => {
-    if(isEdit){
-      const itemsToDelete = getItemsByInvoiceId(params.id).map(item=>item.itemId)
+    if (isEdit) {
+      const itemsToDelete = getItemsByInvoiceId(params.id).map(
+        (item) => item.itemId
+      );
       setDeletedItems((prevItems) => [...prevItems, ...itemsToDelete]);
     }
     const recievedInvoice = getOneInvoice(copyId);
@@ -196,7 +198,7 @@ const InvoiceForm = () => {
         ...recievedInvoice,
         id: formData.id,
         invoiceNumber: formData.invoiceNumber,
-        items:getItemsByInvoiceId(copyId)
+        items: getItemsByInvoiceId(copyId),
       });
     } else {
       alert("Invoice does not exists!!!!!");
