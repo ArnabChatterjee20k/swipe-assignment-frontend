@@ -7,7 +7,7 @@ import { TiDocument } from "react-icons/ti";
 import EmptyBox from "../components/EmptyBox";
 import { BiTrash } from "react-icons/bi";
 import EditableField from "../components/EditableField";
-import { updateProduct } from "../redux/products/productsSlice";
+import { updateProducts } from "../redux/products/productsSlice";
 
 export default function Products() {
   const { productsSize, products } = useProducts();
@@ -48,7 +48,7 @@ function ProductRow({ name, description, price,quantity, id,productIdx }) {
   const dispatch =useDispatch()
   const {products} = useProducts()
   const editProduct = (e)=>{
-    dispatch(updateProduct({id,item:{...products[productIdx],[e.target.name]:e.target.value}}))
+    dispatch(updateProducts({items:[{...products[productIdx],[e.target.name]:e.target.value}]}))
   }
   
   return (

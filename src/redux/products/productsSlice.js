@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice,current } from "@reduxjs/toolkit";
 import generateRandomId from "../../utils/generateRandomId";
 const productsSlice = createSlice({
   name: "products",
@@ -19,20 +19,37 @@ const productsSlice = createSlice({
     deleteProduct: (state, action) => {
       return state.filter((item) => item.id !== action.payload);
     },
-    updateProduct: (state, action) => {
-      const index = state.findIndex(
-        (product) => product.itemId === action.payload.id
-      );
-      if (index !== -1) {
-        state[index] = action.payload.item;
-      }
+    updateProducts: (state, action) => {
+      const products = action.payload.items
+      products.forEach(item=>{
+        const index = state.findIndex(
+          (product) => product.itemId === item.itemId
+        );
+        if (index !== -1) {
+          const prevInvoices = current(state)[index].invoices
+          const currentInvoices = item.invoices
+          console.log({prevInvoices,currentInvoices})
+          // state[index] = {...item,invoices:[...new Set(...prevInvoices,...currentInvoices)]};
+          state[index] = item
+        }
+        else{
+          state.push({
+            itemId: generateRandomId(),
+            itemName: item.itemName,
+            itemDescription: item.itemDescription,
+            itemPrice: item.itemPrice,
+            itemQuantity: item.itemQuantity,
+            invoices: [action.payload.invoiceID],
+          })
+        }
+      })
     },
   },
 });
 
 export default productsSlice.reducer;
 
-export const { addProduct, deleteProduct, updateProduct } =
+export const { addProduct, deleteProduct, updateProducts } =
   productsSlice.actions;
 
 export const selectProducts = (state) => state.products;

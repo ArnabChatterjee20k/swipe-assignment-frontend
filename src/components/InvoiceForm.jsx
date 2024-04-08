@@ -14,7 +14,7 @@ import { addInvoice, updateInvoice } from "../redux/invoice/invoicesSlice";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import generateRandomId from "../utils/generateRandomId";
 import { useInvoiceListData } from "../redux/invoice/hooks";
-import { addProduct } from "../redux/products/productsSlice";
+import { addProduct, updateProducts } from "../redux/products/productsSlice";
 import { generateFakeInvoiceData } from "../utils/generateFakeInvoiceData";
 import { useProducts } from "../redux/products/hooks";
 
@@ -161,14 +161,15 @@ const InvoiceForm = () => {
   };
 
   const handleAddInvoice = () => {
+    const {items,...formDataWithoutItems} = formData
     if (isEdit) {
-      dispatch(updateInvoice({ id: params.id, updatedInvoice: formData }));
+      dispatch(updateInvoice({ id: params.id, updatedInvoice: formDataWithoutItems }));
+      dispatch(updateProducts({items,invoiceID:parseInt(params.id)}))
       alert("Invoice updated successfuly 🥳");
     } else if (isCopy) {
       const invoiceID = generateRandomId()
-      const {items,...formDataWithoutItems} = formData
       dispatch(addInvoice({ ...formDataWithoutItems,id:invoiceID}));
-      dispatch(addProduct({products:formData.items,invoiceID:invoiceID}))
+      dispatch(addProduct({products:items,invoiceID:invoiceID}))
       alert("Invoice added successfuly 🥳");
     } else {
       dispatch(addInvoice(formData));
