@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useProducts } from "../redux/products/hooks";
-import {useDispatch} from "react-redux"
-import { Table, Dropdown } from "react-bootstrap";
+import { useDispatch } from "react-redux";
+import { Table, Dropdown, Modal } from "react-bootstrap";
 import { IoEllipsisVertical } from "react-icons/io5";
 import { TiDocument } from "react-icons/ti";
 import EmptyBox from "../components/EmptyBox";
@@ -11,7 +11,6 @@ import { deleteProduct, updateProducts } from "../redux/products/productsSlice";
 
 export default function Products() {
   const { productsSize, products } = useProducts();
-  console.log(products);
   if (productsSize === 0) return <EmptyBox />;
   return (
     <Table responsive>
@@ -34,7 +33,8 @@ export default function Products() {
               price={item.itemPrice}
               id={item.itemId}
               quantity={item.itemQuantity}
-              productIdx = {i}
+              productIdx={i}
+              invoices={item.invoices}
             />
           );
         })}
@@ -43,13 +43,17 @@ export default function Products() {
   );
 }
 
-function ProductRow({ name, description, price,quantity, id,productIdx }) {
-  const dispatch =useDispatch()
-  const {products} = useProducts()
-  const editProduct = (e)=>{
-    dispatch(updateProducts({items:[{...products[productIdx],[e.target.name]:e.target.value}]}))
-  }
-  
+function ProductRow({ name, description, price, quantity, id, productIdx,invoices }) {
+  const dispatch = useDispatch();
+  const { products } = useProducts();
+  const editProduct = (e) => {
+    dispatch(
+      updateProducts({
+        items: [{ ...products[productIdx], [e.target.name]: e.target.value }],
+      })
+    );
+  };
+
   return (
     <tr id={id} key={id} style={{ paddingInline: "1rem" }}>
       <td style={{ width: "70px" }}>{id}</td>
@@ -77,7 +81,7 @@ function ProductRow({ name, description, price,quantity, id,productIdx }) {
           }}
         />
       </td>
-      <td style={{width:"8rem"}}>
+      <td style={{ width: "8rem" }}>
         <EditableField
           onItemizedItemEdit={editProduct}
           cellData={{
@@ -87,30 +91,30 @@ function ProductRow({ name, description, price,quantity, id,productIdx }) {
             step: "0.01",
             presicion: 2,
             value: price,
-            id: id
+            id: id,
           }}
         />
       </td>
-      <td style={{width:"8rem"}}>
+      <td style={{ width: "8rem" }}>
         <EditableField
           onItemizedItemEdit={editProduct}
           cellData={{
             type: "number",
             name: "itemQuantity",
             value: quantity,
-            id: id
+            id: id,
           }}
         />
       </td>
       <td>
-        <ContextMenu itemId={id}/>
+        <ContextMenu itemId={id} invoices={invoices}/>
       </td>
     </tr>
   );
 }
 
-function ContextMenu({itemId}) {
-  const dispatch = useDispatch()
+function ContextMenu({ itemId,invoices }) {
+  const dispatch = useDispatch();
   return (
     <Dropdown>
       <Dropdown.Toggle variant="link" color="secondary" id="dropdown-basic">
@@ -118,10 +122,16 @@ function ContextMenu({itemId}) {
       </Dropdown.Toggle>
 
       <Dropdown.Menu>
-        <Dropdown.Item className="d-flex items align-items-center justify-content-between">
+        <Dropdown.Item
+          onClick={()=>{alert(`The item ${itemId} is used in invoices - ${invoices.join(",")}`)}}
+          className="d-flex items align-items-center justify-content-between"
+        >
           View Invoices <TiDocument size="20px" color="blue" />
         </Dropdown.Item>
-        <Dropdown.Item onClick={()=>dispatch(deleteProduct(itemId))} className="d-flex items align-items-center justify-content-between">
+        <Dropdown.Item
+          onClick={() => dispatch(deleteProduct(itemId))}
+          className="d-flex items align-items-center justify-content-between"
+        >
           Delete <BiTrash size="20px" color="red" />
         </Dropdown.Item>
       </Dropdown.Menu>
