@@ -5,7 +5,7 @@ export const generateFakeInvoiceData = (initial) => {
   const numberOfItems = faker.word.noun().length; // Generate random number of items
   const numberOfGroups = faker.word.noun().length;
   const groups = Array.from({ length: numberOfGroups }, () =>
-    faker.finance.accountName()
+    faker.company.buzzNoun()
   );
   const items = Array.from({ length: numberOfItems }, () => ({
     itemId: generateRandomId(),

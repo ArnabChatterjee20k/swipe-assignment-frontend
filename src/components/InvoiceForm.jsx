@@ -164,6 +164,16 @@ const InvoiceForm = () => {
 
   const handleAddInvoice = () => {
     const { items, ...formDataWithoutItems } = formData;
+    const groupsObject = formData.groups.reduce((prev, cur) => {
+      prev[cur] = [];
+      return prev;
+    }, {});
+
+    const groupsWithProducts = items.reduce((prev, item) => {
+      prev[item.group].push(item.itemId);
+      return prev;
+    }, groupsObject);
+
     if (isEdit) {
       dispatch(
         updateInvoice({
@@ -172,20 +182,14 @@ const InvoiceForm = () => {
         })
       );
       dispatch(updateProducts({ items, invoiceID: parseInt(params.id) }));
+      dispatch(addGroup({ invoiceID:parseInt(params.id), groupsWithProducts }));
       alert("Invoice updated successfuly 🥳");
+
     } else if (isCopy) {
       const invoiceID = generateRandomId();
       dispatch(addInvoice({ ...formDataWithoutItems, id: invoiceID }));
       dispatch(addProduct({ products: items, invoiceID: invoiceID }));
 
-      const groupsObject = formData.groups.reduce((prev, cur) => {
-        prev[cur] = [];
-        return prev;
-      }, {});
-      const groupsWithProducts = items.reduce((prev, item) => {
-        prev[item.group].push(item.itemId);
-        return prev;
-      }, groupsObject);
       dispatch(addGroup({ invoiceID, groupsWithProducts }));
       alert("Invoice added successfuly 🥳");
     } else {
