@@ -248,21 +248,23 @@ const InvoiceForm = () => {
 
   const handleAddGroup = () => {
     const groupname = prompt("enter new group name");
-    setFormData((prevForm) => ({
-      ...prevForm,
-      items: [
-        ...prevForm.items,
-        {
-          itemId: generateRandomId(),
-          itemName: "",
-          itemDescription: "",
-          itemPrice: "1.00",
-          itemQuantity: 1,
-          group: groupname,
-        },
-      ],
-      groups: [...prevForm.groups, groupname],
-    }));
+    if (groupname) {
+      setFormData((prevForm) => ({
+        ...prevForm,
+        items: [
+          ...prevForm.items,
+          {
+            itemId: generateRandomId(),
+            itemName: "",
+            itemDescription: "",
+            itemPrice: "1.00",
+            itemQuantity: 1,
+            group: groupname,
+          },
+        ],
+        groups: [...prevForm.groups, groupname],
+      }));
+    }
   };
 
   return (
@@ -384,10 +386,15 @@ const InvoiceForm = () => {
               </Col>
             </Row>
             {formData.groups.map((groupName) => {
-              const items = formData.items.filter((item) => item.group === groupName)
-              if(items.length===0){
-                setFormData(prev=>({...prev,groups:prev.groups.filter(group=>group!==groupName)}))
-                return null
+              const items = formData.items.filter(
+                (item) => item.group === groupName
+              );
+              if (items.length === 0) {
+                setFormData((prev) => ({
+                  ...prev,
+                  groups: prev.groups.filter((group) => group !== groupName),
+                }));
+                return null;
               }
               return (
                 <GroupItem title={groupName}>
