@@ -445,13 +445,14 @@ const InvoiceForm = () => {
                 </GroupItem>
               );
             })}
-            <button
+            <Button
+              variant="outline-success"
               onClick={handleAddGroup}
               type="button"
               style={{ width: "100%", marginBlock: "12px" }}
             >
               Add Group
-            </button>
+            </Button>
             <Row className="mt-4 justify-content-end">
               <Col lg={6}>
                 <div className="d-flex flex-row align-items-start justify-content-between">
