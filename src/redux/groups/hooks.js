@@ -9,14 +9,21 @@ export const useGroup = () => {
   const getItemsMappedToGroups = (id) => {
     const requiredInvoice = group[parseInt(id)];
     if (!requiredInvoice) return {};
-  
-    return Object.entries(requiredInvoice).reduce((result, [groupName, products]) => {
-      for (const [_, ids] of Object.entries(products)) {
-        result[ids] = groupName
-      }
-      return result;
-    }, {});
+
+    return Object.entries(requiredInvoice).reduce(
+      (result, [groupName, products]) => {
+        for (const [_, ids] of Object.entries(products)) {
+          result[ids] = groupName;
+        }
+        return result;
+      },
+      {}
+    );
   };
-  
-  return { getGroupsByIvoiceID, groupSize,getItemsMappedToGroups };
+
+  const getGroupWithProductIdsByInvoiceID = (id) => {
+    return group[parseInt(id)] || {};
+  };
+
+  return { getGroupsByIvoiceID, groupSize, getItemsMappedToGroups,getGroupWithProductIdsByInvoiceID };
 };

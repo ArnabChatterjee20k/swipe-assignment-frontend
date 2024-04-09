@@ -8,6 +8,7 @@ import Modal from "react-bootstrap/Modal";
 import { BiPaperPlane, BiCloudDownload } from "react-icons/bi";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { useGroup } from "../redux/groups/hooks";
 
 const GenerateInvoice = () => {
   html2canvas(document.querySelector("#invoiceCapture")).then((canvas) => {
@@ -27,6 +28,24 @@ const GenerateInvoice = () => {
 };
 
 const InvoiceModal = (props) => {
+  const { getGroupWithProductIdsByInvoiceID } = useGroup();
+  const groupsWithItems = getGroupWithProductIdsByInvoiceID(props.info.id);
+  const items = props.items;
+  const groups = Object.entries(groupsWithItems).reduce(
+    (prev, [groupName, productIds]) => {
+      productIds.forEach((id) => {
+        const requiredItem = items?.find((item) => item.itemId === id);
+        if (groupName in prev) {
+          prev[groupName].push(requiredItem);
+        } else {
+          prev[groupName] = [requiredItem];
+        }
+        return prev;
+      });
+      return prev;
+    },
+    {}
+  );
   return (
     <div>
       <Modal
@@ -75,34 +94,52 @@ const InvoiceModal = (props) => {
                 <div>{props.info.dateOfIssue || ""}</div>
               </Col>
             </Row>
-            <Table className="mb-0">
-              <thead>
-                <tr>
-                  <th>QTY</th>
-                  <th>DESCRIPTION</th>
-                  <th className="text-end">PRICE</th>
-                  <th className="text-end">AMOUNT</th>
-                </tr>
-              </thead>
-              <tbody>
-                {props?.items?.map((item, i) => {
-                  return (
-                    <tr id={i} key={i}>
-                      <td style={{ width: "70px" }}>{item.itemQuantity}</td>
-                      <td>
-                        {item.itemName} - {item.itemDescription}
-                      </td>
-                      <td className="text-end" style={{ width: "100px" }}>
-                        {props.currency} {item.itemPrice}
-                      </td>
-                      <td className="text-end" style={{ width: "100px" }}>
-                        {props.currency} {item.itemPrice * item.itemQuantity}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </Table>
+            <>
+              {Object.entries(groups).map(([groupName, items]) => {
+                return (
+                  <>
+                    <h4>{groupName}</h4>
+                    <Table>
+                      <thead>
+                        <tr>
+                          <th>QTY</th>
+                          <th>DESCRIPTION</th>
+                          <th className="text-end">PRICE</th>
+                          <th className="text-end">AMOUNT</th>
+                        </tr>
+                      </thead>
+                      <tbody style={{ width: "100%" }}>
+                        {items.map((item, i) => {
+                          return (
+                            <tr id={i} key={i}>
+                              <td style={{ width: "70px" }}>
+                                {item?.itemQuantity}
+                              </td>
+                              <td>
+                                {item?.itemName} - {item?.itemDescription}
+                              </td>
+                              <td
+                                className="text-end"
+                                style={{ width: "100px" }}
+                              >
+                                {props?.currency} {item?.itemPrice}
+                              </td>
+                              <td
+                                className="text-end"
+                                style={{ width: "100px" }}
+                              >
+                                {props.currency}{" "}
+                                {item?.itemPrice * item?.itemQuantity}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </Table>
+                  </>
+                );
+              })}
+            </>
             <Table>
               <tbody>
                 <tr>
