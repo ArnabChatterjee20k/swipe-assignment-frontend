@@ -43,6 +43,7 @@ const productsSlice = createSlice({
       return state.filter((item) => item.id !== action.payload);
     },
     updateProducts: (state, action) => {
+      debugger;
       const products = action.payload.items;
       products.forEach((item) => {
         const index = state.findIndex(
@@ -80,11 +81,6 @@ const productsSlice = createSlice({
         })
         .filter((item) => item.invoices.length > 0);
     },
-    updateProductGroup:(state,action)=>{
-      const {itemId,group} = action.payload
-      const productIdx = state.findIndex(item=>item.itemId===itemId)
-      if(productIdx!==-1) state[productIdx]["group"] = group
-    }
   },
 });
 
