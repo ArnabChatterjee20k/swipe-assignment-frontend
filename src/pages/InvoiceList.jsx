@@ -11,6 +11,7 @@ import { deleteInvoice } from "../redux/invoice/invoicesSlice";
 import { useProducts } from "../redux/products/hooks";
 import { deleteInvoicesFromProduct } from "../redux/products/productsSlice";
 import { updateInvoiceTotal } from "../redux/invoice/invoicesSlice";
+import { removeGroupByInvoiceID } from "../redux/groups/groupSlice";
 const InvoiceList = () => {
   const { invoiceList, getOneInvoice } = useInvoiceListData();
   const isListEmpty = invoiceList.length === 0;
@@ -114,6 +115,7 @@ const InvoiceRow = ({ invoice, navigate }) => {
     const deletedItems = getItemsByInvoiceId(invoiceId).map(item=>item.itemId)
     dispatch(deleteInvoice(invoiceId));
     dispatch(deleteInvoicesFromProduct({itemsIds:deletedItems,invoiceId:parseInt(invoiceId)}))
+    dispatch(removeGroupByInvoiceID(invoiceId))
   };
 
   const handleEditClick = () => {
