@@ -248,7 +248,11 @@ const InvoiceForm = () => {
 
   const handleAddGroup = () => {
     const groupname = prompt("enter new group name");
-    if (groupname) {
+    const exists = formData.groups.findIndex(
+      (groupName) =>
+        groupName.trim().toLowerCase() === groupName.trim().toLowerCase()
+    );
+    if (groupname && exists===-1) {
       setFormData((prevForm) => ({
         ...prevForm,
         items: [
