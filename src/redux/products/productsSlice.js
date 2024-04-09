@@ -40,7 +40,7 @@ const productsSlice = createSlice({
       state.push(...receivedItems);
     },
     deleteProduct: (state, action) => {
-      return state.filter((item) => item.id !== action.payload);
+      return state.filter((item) => item.itemId !== action.payload);
     },
     updateProducts: (state, action) => {
       debugger;

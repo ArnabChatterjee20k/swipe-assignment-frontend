@@ -7,7 +7,7 @@ import { TiDocument } from "react-icons/ti";
 import EmptyBox from "../components/EmptyBox";
 import { BiTrash } from "react-icons/bi";
 import EditableField from "../components/EditableField";
-import { updateProducts } from "../redux/products/productsSlice";
+import { deleteProduct, updateProducts } from "../redux/products/productsSlice";
 
 export default function Products() {
   const { productsSize, products } = useProducts();
@@ -103,13 +103,14 @@ function ProductRow({ name, description, price,quantity, id,productIdx }) {
         />
       </td>
       <td>
-        <ContextMenu />
+        <ContextMenu itemId={id}/>
       </td>
     </tr>
   );
 }
 
-function ContextMenu() {
+function ContextMenu({itemId}) {
+  const dispatch = useDispatch()
   return (
     <Dropdown>
       <Dropdown.Toggle variant="link" color="secondary" id="dropdown-basic">
@@ -120,7 +121,7 @@ function ContextMenu() {
         <Dropdown.Item className="d-flex items align-items-center justify-content-between">
           View Invoices <TiDocument size="20px" color="blue" />
         </Dropdown.Item>
-        <Dropdown.Item className="d-flex items align-items-center justify-content-between">
+        <Dropdown.Item onClick={()=>dispatch(deleteProduct(itemId))} className="d-flex items align-items-center justify-content-between">
           Delete <BiTrash size="20px" color="red" />
         </Dropdown.Item>
       </Dropdown.Menu>
