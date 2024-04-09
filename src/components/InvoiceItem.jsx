@@ -1,12 +1,22 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Table from "react-bootstrap/Table";
+import Dropdown from "react-bootstrap/Dropdown";
 import Button from "react-bootstrap/Button";
 import { BiTrash } from "react-icons/bi";
 import EditableField from "./EditableField";
 
 const InvoiceItem = (props) => {
-  const { onItemizedItemEdit, currency, onRowDel, items, onRowAdd } = props;
+  const {
+    onItemizedItemEdit,
+    currency,
+    onRowDel,
+    items,
+    onRowAdd,
+    groupName,
+    groups,
+    onChangeGroup,
+  } = props;
 
   const itemTable = items.map((item) => (
     <ItemRow
@@ -15,6 +25,9 @@ const InvoiceItem = (props) => {
       onDelEvent={onRowDel}
       onItemizedItemEdit={onItemizedItemEdit}
       currency={currency}
+      groupName={groupName}
+      groups={groups}
+      onChangeGroup={onChangeGroup}
     />
   ));
 
@@ -26,6 +39,7 @@ const InvoiceItem = (props) => {
             <th>ITEM</th>
             <th>QTY</th>
             <th>PRICE/RATE</th>
+            <th>Group</th>
             <th className="text-center">ACTION</th>
           </tr>
         </thead>
@@ -102,6 +116,25 @@ const ItemRow = (props) => {
             id: props.item.itemId,
           }}
         />
+      </td>
+      <td>
+        <Dropdown>
+          <Dropdown.Toggle variant="info" id="dropdown-basic">
+            {props.groupName}
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu>
+            {props.groups.map((groupName) => (
+              <Dropdown.Item
+                onClick={() => {
+                  props.onChangeGroup(groupName, props.item.itemId);
+                }}
+              >
+                {groupName}
+              </Dropdown.Item>
+            ))}
+          </Dropdown.Menu>
+        </Dropdown>
       </td>
       <td className="text-center" style={{ minWidth: "50px" }}>
         <BiTrash

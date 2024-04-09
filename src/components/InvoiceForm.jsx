@@ -241,6 +241,22 @@ const InvoiceForm = () => {
     }
   };
 
+  const handleGroupChange = (newGroup, itemId) => {
+    console.log({newGroup,itemId})
+    const updatedItems = formData.items.map((item) => {
+      if (item.itemId === itemId) {
+        return { ...item, group: newGroup };
+      }
+      return item;
+    });
+  
+    setFormData(prev => ({
+      ...prev,
+      items: updatedItems
+    }));
+  };
+  
+
   const handleAutoGenerateInvoice = () => {
     setFormData((prevForm) => generateFakeInvoiceData(prevForm));
     handleCalculateTotal();
@@ -249,10 +265,9 @@ const InvoiceForm = () => {
   const handleAddGroup = () => {
     const groupname = prompt("enter new group name");
     const exists = formData.groups.findIndex(
-      (groupName) =>
-        groupName.trim().toLowerCase() === groupName.trim().toLowerCase()
+      (prev) => prev.trim().toLowerCase() === groupname.trim().toLowerCase()
     );
-    if (groupname && exists===-1) {
+    if (groupname && exists === -1) {
       setFormData((prevForm) => ({
         ...prevForm,
         items: [
@@ -408,6 +423,9 @@ const InvoiceForm = () => {
                     onRowDel={handleRowDel}
                     currency={formData.currency}
                     items={items}
+                    groupName={groupName}
+                    groups={formData.groups}
+                    onChangeGroup={handleGroupChange}
                   />
                 </GroupItem>
               );

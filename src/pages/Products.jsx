@@ -22,7 +22,6 @@ export default function Products() {
           <th>Description</th>
           <th>Price</th>
           <th>Quantity</th>
-          <th>Group</th>
           <th>More</th>
         </tr>
       </thead>
@@ -102,9 +101,6 @@ function ProductRow({ name, description, price,quantity, id,productIdx }) {
             id: id
           }}
         />
-      </td>
-      <td>
-        <select />
       </td>
       <td>
         <ContextMenu />
