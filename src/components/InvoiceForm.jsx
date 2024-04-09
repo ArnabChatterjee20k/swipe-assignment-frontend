@@ -384,6 +384,11 @@ const InvoiceForm = () => {
               </Col>
             </Row>
             {formData.groups.map((groupName) => {
+              const items = formData.items.filter((item) => item.group === groupName)
+              if(items.length===0){
+                setFormData(prev=>({...prev,groups:prev.groups.filter(group=>group!==groupName)}))
+                return null
+              }
               return (
                 <GroupItem title={groupName}>
                   <InvoiceItem
@@ -391,9 +396,7 @@ const InvoiceForm = () => {
                     onRowAdd={() => handleAddEvent(groupName)}
                     onRowDel={handleRowDel}
                     currency={formData.currency}
-                    items={formData.items.filter(
-                      (item) => item.group === groupName
-                    )}
+                    items={items}
                   />
                 </GroupItem>
               );
