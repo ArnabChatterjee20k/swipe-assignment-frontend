@@ -26,7 +26,7 @@ const productsSlice = createSlice({
         .map((item) => {
           if (!addedItemIDs.includes(item.itemId))
             return {
-              itemId: generateRandomId(),
+              itemId: item.itemId,
               itemName: item.itemName,
               itemDescription: item.itemDescription,
               itemPrice: item.itemPrice,
@@ -56,7 +56,7 @@ const productsSlice = createSlice({
           state[index] = {...item,invoices:[...new Set([...prevInvoices,...currentInvoices,action.payload.invoiceID])]};
         } else {
           state.push({
-            itemId: generateRandomId(),
+            itemId: item.itemId,
             itemName: item.itemName,
             itemDescription: item.itemDescription,
             itemPrice: item.itemPrice,
@@ -80,6 +80,11 @@ const productsSlice = createSlice({
         })
         .filter((item) => item.invoices.length > 0);
     },
+    updateProductGroup:(state,action)=>{
+      const {itemId,group} = action.payload
+      const productIdx = state.findIndex(item=>item.itemId===itemId)
+      if(productIdx!==-1) state[productIdx]["group"] = group
+    }
   },
 });
 
@@ -90,6 +95,7 @@ export const {
   deleteProduct,
   updateProducts,
   deleteInvoicesFromProduct,
+  updateProductGroup
 } = productsSlice.actions;
 
 export const selectProducts = (state) => state.products;
