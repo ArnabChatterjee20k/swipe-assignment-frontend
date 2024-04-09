@@ -185,7 +185,7 @@ const InvoiceForm = () => {
       return prev;
     }, groupsObject);
 
-    if (isEdit) {
+    const handleEditInvoice = () => {
       dispatch(
         updateInvoice({
           id: parseInt(params.id),
@@ -197,24 +197,40 @@ const InvoiceForm = () => {
         addGroup({ invoiceID: parseInt(params.id), groupsWithProducts })
       );
       alert("Invoice updated successfuly 🥳");
-    } else if (isCopy) {
+    };
+
+    const handleCreateInvoice = () => {
       const invoiceID = generateRandomId();
       dispatch(addInvoice({ ...formDataWithoutItems, id: invoiceID }));
       dispatch(addProduct({ products: items, invoiceID: invoiceID }));
-
       dispatch(addGroup({ invoiceID, groupsWithProducts }));
       alert("Invoice added successfuly 🥳");
-    } else {
+    };
+
+    const handleNormalInvoice = () => {
       dispatch(addInvoice(formData));
       alert("Invoice added successfuly 🥳");
+    };
+
+    const handleDeleteInvoice = () => {
+      if (deletedItems.length && params.id)
+        dispatch(
+          deleteInvoicesFromProduct({
+            itemsIds: deletedItems,
+            invoiceId: parseInt(params.id),
+          })
+        );
+    };
+
+    if (isEdit) {
+      handleEditInvoice();
+    } else if (isCopy) {
+      handleCreateInvoice();
+    } else {
+      handleNormalInvoice();
     }
-    if (deletedItems.length && params.id)
-      dispatch(
-        deleteInvoicesFromProduct({
-          itemsIds: deletedItems,
-          invoiceId: parseInt(params.id),
-        })
-      );
+
+    handleDeleteInvoice();
     navigate("/");
   };
 
@@ -242,20 +258,19 @@ const InvoiceForm = () => {
   };
 
   const handleGroupChange = (newGroup, itemId) => {
-    console.log({newGroup,itemId})
+    console.log({ newGroup, itemId });
     const updatedItems = formData.items.map((item) => {
       if (item.itemId === itemId) {
         return { ...item, group: newGroup };
       }
       return item;
     });
-  
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
-      items: updatedItems
+      items: updatedItems,
     }));
   };
-  
 
   const handleAutoGenerateInvoice = () => {
     setFormData((prevForm) => generateFakeInvoiceData(prevForm));
