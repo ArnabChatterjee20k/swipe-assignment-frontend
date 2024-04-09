@@ -42,21 +42,32 @@ const InvoiceForm = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [copyId, setCopyId] = useState("");
   const { getOneInvoice, listSize } = useInvoiceListData();
-  const { getGroupsByIvoiceID,getItemsMappedToGroups } = useGroup();
-  const groupsOfCurrentInvoice =params.id?getGroupsByIvoiceID(params.id):[]
-  const itemIdsWithRespectiveGroup = params.id ? getItemsMappedToGroups(params.id):{}
+  const { getGroupsByIvoiceID, getItemsMappedToGroups } = useGroup();
+  const groupsOfCurrentInvoice = params.id
+    ? getGroupsByIvoiceID(params.id)
+    : [];
+  const itemIdsWithRespectiveGroup = params.id
+    ? getItemsMappedToGroups(params.id)
+    : {};
+  console.log({ itemIdsWithRespectiveGroup });
   const [formData, setFormData] = useState(
     isEdit
       ? {
           ...getOneInvoice(params.id),
-          items: getItemsByInvoiceId(params.id).map(item=>({...item,group:itemIdsWithRespectiveGroup[item.itemId]})),
+          items: getItemsByInvoiceId(params.id).map((item) => ({
+            ...item,
+            group: itemIdsWithRespectiveGroup[item.itemId],
+          })),
         }
       : isCopy && params.id
       ? {
           ...getOneInvoice(params.id),
           id: generateRandomId(),
           invoiceNumber: listSize + 1,
-          items: getItemsByInvoiceId(params.id).map(item=>({...item,group:itemIdsWithRespectiveGroup[item.itemId]})),
+          items: getItemsByInvoiceId(params.id).map((item) => ({
+            ...item,
+            group: itemIdsWithRespectiveGroup[item.itemId],
+          })),
         }
       : {
           id: generateRandomId(),
@@ -98,14 +109,14 @@ const InvoiceForm = () => {
 
   const handleAddEvent = (groupName) => {
     // const id = +new Date() + Math.floor(Math.random() * 999999);
-    const id = generateRandomId()
+    const id = generateRandomId();
     const newItem = {
       itemId: id,
       itemName: "",
       itemDescription: "",
       itemPrice: "1.00",
       itemQuantity: 1,
-      group:groupName
+      group: groupName,
     };
     setFormData({
       ...formData,
@@ -182,9 +193,10 @@ const InvoiceForm = () => {
         })
       );
       dispatch(updateProducts({ items, invoiceID: parseInt(params.id) }));
-      dispatch(addGroup({ invoiceID:parseInt(params.id), groupsWithProducts }));
+      dispatch(
+        addGroup({ invoiceID: parseInt(params.id), groupsWithProducts })
+      );
       alert("Invoice updated successfuly 🥳");
-
     } else if (isCopy) {
       const invoiceID = generateRandomId();
       dispatch(addInvoice({ ...formDataWithoutItems, id: invoiceID }));
@@ -219,7 +231,10 @@ const InvoiceForm = () => {
         ...recievedInvoice,
         id: formData.id,
         invoiceNumber: formData.invoiceNumber,
-        items: getItemsByInvoiceId(copyId),
+        items: getItemsByInvoiceId(copyId).map((item) => ({
+          ...item,
+          group: getItemsMappedToGroups(copyId)[item.itemId],
+        })),
       });
     } else {
       alert("Invoice does not exists!!!!!");
@@ -373,7 +388,7 @@ const InvoiceForm = () => {
                 <GroupItem title={groupName}>
                   <InvoiceItem
                     onItemizedItemEdit={onItemizedItemEdit}
-                    onRowAdd={()=>handleAddEvent(groupName)}
+                    onRowAdd={() => handleAddEvent(groupName)}
                     onRowDel={handleRowDel}
                     currency={formData.currency}
                     items={formData.items.filter(
